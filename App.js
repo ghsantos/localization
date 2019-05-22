@@ -3,35 +3,42 @@
  * @flow
  */
 
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, PermissionsAndroid, Button } from 'react-native';
+import React, { Component } from 'react';
+import {
+  Button,
+  PermissionsAndroid,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import RenderMarkers from './RenderMarkers'
+import RenderMarkers from './RenderMarkers';
 
 function requestCameraPermission() {
   PermissionsAndroid.request(
     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
     {
-      title: 'Cool Photo App Camera Permission',
-      message:
-        'Cool Photo App needs access to your camera ' +
-        'so you can take awesome pictures.',
+      title: 'App needs GPS Permission',
+      message: 'App needs access to your fine location ',
       buttonNeutral: 'Ask Me Later',
       buttonNegative: 'Cancel',
       buttonPositive: 'OK',
-    },
-  ).then(granted => {
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('You can use the location');
-    } else {
-      console.log('Camera permission denied');
     }
-  }).catch(err => {
-    console.warn(err);
-  });
+  )
+    .then(granted => {
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the location');
+      } else {
+        console.log('permission denied');
+      }
+    })
+    .catch(err => {
+      console.warn(err);
+    });
 }
 
 const markers = [
@@ -47,43 +54,44 @@ export default class App extends Component {
   state = {
     region: null,
     markers: [],
-  }
+  };
 
   componentDidMount() {
     requestCameraPermission();
     console.log('aqui');
 
     Geolocation.getCurrentPosition(
-        (position) => {
-            console.log(position);
-            const { latitude, longitude } = position.coords;
-            console.log(typeof(latitude));
-            // this.setState(prevState =>
-            //   ({ region: { ...prevState.region, latitude, longitude } }),
-            //   () => console.log('setState'),
-            // );
-            this.setState({
-              region: { latitude, longitude, latitudeDelta: 0.0143, longitudeDelta: 0.0134 }
-            })
-        },
-        (error) => {
-            // See error code charts below.-15.870315, -48.030366
-            console.log(error.code, error.message);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      position => {
+        console.log(position);
+        const { latitude, longitude } = position.coords;
+        console.log(typeof latitude);
+        this.setState({
+          region: {
+            latitude,
+            longitude,
+            latitudeDelta: 0.0143,
+            longitudeDelta: 0.0134,
+          },
+        });
+      },
+      error => {
+        // See error code charts below.-15.870315, -48.030366
+        console.log(error.code, error.message);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
   }
 
-  addMarker = (props) => {
+  addMarker = props => {
     const id = Date.now();
     console.log('aaaa');
     const coordinate = props.nativeEvent.coordinate;
     console.log(coordinate);
 
-    this.setState(prevState =>
-      ({ markers: [...prevState.markers, { id, ...coordinate }] })
-    );
-  }
+    this.setState(prevState => ({
+      markers: [...prevState.markers, { id, ...coordinate }],
+    }));
+  };
 
   render() {
     console.log('render');
@@ -103,9 +111,9 @@ export default class App extends Component {
               latitude: -15.868109,
               longitude: -48.025825,
             }}
-            >
-              <Icon name='ios-bicycle' size={32} color='#880' />
-            </Marker>
+          >
+            <Icon name="ios-bicycle" size={32} color="#880" />
+          </Marker>
 
           <Marker
             coordinate={{
@@ -113,7 +121,7 @@ export default class App extends Component {
               longitude: -48.027797,
             }}
           >
-            <Icon name='ios-bicycle' size={32} color='#808' />
+            <Icon name="ios-bicycle" size={32} color="#808" />
           </Marker>
 
           <Marker
@@ -122,7 +130,7 @@ export default class App extends Component {
               longitude: -48.026762,
             }}
           >
-            <Icon name='ios-bicycle' size={32} color='#088' />
+            <Icon name="ios-bicycle" size={32} color="#088" />
           </Marker>
 
           <Marker
@@ -131,7 +139,7 @@ export default class App extends Component {
               longitude: -48.026772,
             }}
           >
-            <Icon name='ios-bicycle' size={32} color='#088' />
+            <Icon name="ios-bicycle" size={32} color="#088" />
           </Marker>
 
           <RenderMarkers markers={markers} />

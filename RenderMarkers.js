@@ -12,15 +12,15 @@ export default class RenderMarkers extends PureComponent {
 
     return (
       <>
-      {markers.map(({ latitude, longitude, id }) => (
-        <Marker
-          key={String(id)}
-          coordinate={{ latitude, longitude }}
-          tracksViewChanges={false}
-        >
-          <Icon name='ios-business' size={32} color='#088' />
-        </Marker>
-      ))}
+        {markers.map(({ latitude, longitude, id }) => (
+          <Marker
+            key={String(id)}
+            coordinate={{ latitude, longitude }}
+            tracksViewChanges={false}
+          >
+            <Icon name="ios-business" size={32} color="#088" />
+          </Marker>
+        ))}
       </>
     );
   }
