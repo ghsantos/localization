@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 export default class RenderMarkers extends PureComponent {
   render() {
-    const { markers } = this.props;
+    const { markers, icon, color } = this.props;
 
     console.log('aqui');
 
@@ -18,7 +18,7 @@ export default class RenderMarkers extends PureComponent {
             coordinate={{ latitude, longitude }}
             tracksViewChanges={false}
           >
-            <Icon name="ios-business" size={32} color="#088" />
+            <Icon name={icon} size={32} color={color} />
           </Marker>
         ))}
       </>

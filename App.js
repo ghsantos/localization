@@ -15,6 +15,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 import Icon from 'react-native-vector-icons/Ionicons';
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 import RenderMarkers from './RenderMarkers';
 
@@ -54,6 +55,7 @@ export default class App extends Component {
   state = {
     region: null,
     markers: [],
+    locations: [],
   };
 
   componentDidMount() {
@@ -80,7 +82,87 @@ export default class App extends Component {
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
+
+    // Geolocation.watchPosition(
+    //   position => {
+    //     console.log('what', position);
+    //     // const { latitude, longitude } = position.coords;
+    //     // console.log(typeof(latitude));
+    //     // this.setState({
+    //     //   region: { latitude, longitude, latitudeDelta: 0.0143, longitudeDelta: 0.0134 }
+    //     // })
+    //   },
+    //   error => {
+    //     console.log(error.code, error.message);
+    //   },
+    //   { enableHighAccuracy: true, distanceFilter: 5 }
+    // );
+
+    BackgroundGeolocation.configure({
+      desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
+      stationaryRadius: 50,
+      distanceFilter: 50,
+      notificationTitle: 'Background tracking',
+      notificationText: 'enabled',
+      debug: false,
+      startOnBoot: false,
+      stopOnTerminate: false,
+      locationProvider: BackgroundGeolocation.ACTIVITY_PROVIDER,
+      interval: 60000,
+      fastestInterval: 5000,
+      // fastestInterval: 120000,
+      activitiesInterval: 10000,
+      // stopOnStillActivity: false,
+    });
+
+    BackgroundGeolocation.on('location', location => {
+      console.log('on location', location);
+      // handle your locations here
+      // to perform long running operation on iOS
+      // you need to create background task
+      // BackgroundGeolocation.startTask(taskKey => {
+      //   // execute long running task
+      //   // eg. ajax post location
+      //   // IMPORTANT: task has to be ended by endTask
+      //   BackgroundGeolocation.endTask(taskKey);
+      // });
+    });
+
+    BackgroundGeolocation.on('error', error => {
+      console.log('[ERROR] BackgroundGeolocation error:', error);
+    });
+
+    BackgroundGeolocation.on('start', () => {
+      console.log('[INFO] BackgroundGeolocation service has been started');
+    });
+
+    BackgroundGeolocation.on('stop', () => {
+      console.log('[INFO] BackgroundGeolocation service has been stopped');
+    });
   }
+
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+  }
+
+  toglleNavigation = () => {
+    BackgroundGeolocation.checkStatus(
+      ({ isRunning, locationServicesEnabled, authorization }) => {
+        if (isRunning) {
+          BackgroundGeolocation.stop();
+
+          BackgroundGeolocation.getLocations(locations => {
+            console.log(locations);
+            this.setState({ locations });
+          });
+        } else {
+          BackgroundGeolocation.deleteAllLocations();
+
+          BackgroundGeolocation.start();
+        }
+      }
+    );
+  };
 
   addMarker = props => {
     const id = Date.now();
@@ -106,45 +188,22 @@ export default class App extends Component {
           style={{ flex: 1 }}
           onPress={this.addMarker}
         >
-          <Marker
-            coordinate={{
-              latitude: -15.868109,
-              longitude: -48.025825,
-            }}
-          >
-            <Icon name="ios-bicycle" size={32} color="#880" />
-          </Marker>
-
-          <Marker
-            coordinate={{
-              latitude: -15.869094,
-              longitude: -48.027797,
-            }}
-          >
-            <Icon name="ios-bicycle" size={32} color="#808" />
-          </Marker>
-
-          <Marker
-            coordinate={{
-              latitude: -15.868568,
-              longitude: -48.026762,
-            }}
-          >
-            <Icon name="ios-bicycle" size={32} color="#088" />
-          </Marker>
-
-          <Marker
-            coordinate={{
-              latitude: -15.868578,
-              longitude: -48.026772,
-            }}
-          >
-            <Icon name="ios-bicycle" size={32} color="#088" />
-          </Marker>
-
-          <RenderMarkers markers={markers} />
-          <RenderMarkers markers={this.state.markers} />
+          <RenderMarkers markers={markers} icon="ios-business" color="#088" />
+          <RenderMarkers
+            markers={this.state.markers}
+            icon="ios-pin"
+            color="#880"
+          />
+          <RenderMarkers
+            markers={this.state.locations}
+            icon="ios-navigate"
+            color="#808"
+          />
         </MapView>
+
+        <View style={{ position: 'absolute', bottom: 30, right: 30 }}>
+          <Button title="toglle" onPress={this.toglleNavigation} />
+        </View>
       </View>
     );
   }

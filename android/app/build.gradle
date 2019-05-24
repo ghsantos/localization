@@ -138,6 +138,9 @@ android {
 }
 
 dependencies {
+    implementation(project(':@mauron85_react-native-background-geolocation')) {
+        exclude group: 'com.google.android.gms', module: 'play-services-location'
+    }
     implementation project(':react-native-vector-icons')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
